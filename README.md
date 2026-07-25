@@ -1,5 +1,7 @@
 # Android KYC Banking App
-
+<p align="center">
+  <img src="Demo.mp4" width="350" alt="App Demo"/>
+</p>
 An Android application built as a solution for the Android Developer Assignment. The app simulates a digital banking platform where relationship managers can browse customer accounts, verify customer KYC using an in-app selfie capture, and fetch bank details through IFSC lookup.
 
 ---
