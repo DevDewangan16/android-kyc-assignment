@@ -2,7 +2,6 @@ package com.example.android_kyc_assignment.ui.camera
 
 import android.Manifest
 import android.graphics.Bitmap
-import android.graphics.Matrix
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -12,12 +11,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FlipCameraAndroid
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
@@ -47,6 +50,10 @@ fun CameraScreen(
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
     var isFrontCamera by remember { mutableStateOf(true) }
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
+
+    // State for captured photo
+    var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var showPreview by remember { mutableStateOf(false) }
 
     val cameraPermissionState = rememberPermissionState(
         Manifest.permission.CAMERA
@@ -112,13 +119,127 @@ fun CameraScreen(
         }
     }
 
+    // Handle captured photo
+    fun handleCapture(bitmap: Bitmap) {
+        capturedBitmap = bitmap
+        showPreview = true
+    }
+
+    // Confirm photo (save and return)
+    fun confirmPhoto() {
+        capturedBitmap?.let {
+            onSelfieCaptured(it)
+            capturedBitmap = null
+            showPreview = false
+        }
+    }
+
+    // Retake photo (go back to camera)
+    fun retakePhoto() {
+        capturedBitmap = null
+        showPreview = false
+        // Restart camera
+        if (cameraPermissionState.status.isGranted && cameraProvider != null) {
+            startCameraWithLens(isFrontCamera)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        // Camera Preview
-        if (cameraPermissionState.status.isGranted) {
+        if (showPreview && capturedBitmap != null) {
+            // Show captured photo preview
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+            ) {
+                // Display captured photo
+                androidx.compose.foundation.Image(
+                    bitmap = capturedBitmap!!.asImageBitmap(),
+                    contentDescription = "Captured photo",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black),
+                    contentScale = androidx.compose.ui.layout.ContentScale.FillWidth
+                )
+
+                // Preview controls overlay
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 48.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    // Instruction
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = Black.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    ) {
+                        Text(
+                            text = "Is this photo good?",
+                            color = White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Retake Button
+                        Button(
+                            onClick = { retakePhoto() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = White
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .width(130.dp)
+                                .height(48.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = "Retake",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "Retake",
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+
+                        // Confirm Button (Save)
+                        Button(
+                            onClick = { confirmPhoto() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00C853),
+                                contentColor = White
+                            ),
+                            shape = CircleShape,
+                            modifier = Modifier
+                                .size(72.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = "Confirm",
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        } else if (cameraPermissionState.status.isGranted) {
+            // Camera Preview
             AndroidView(
                 factory = { ctx ->
                     PreviewView(ctx).apply {
@@ -131,10 +252,8 @@ fun CameraScreen(
                     preview?.setSurfaceProvider(previewView.surfaceProvider)
                 }
             )
-        }
 
-        // Top Bar with camera switch
-        if (cameraPermissionState.status.isGranted) {
+            // Top Bar with camera switch
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,7 +261,6 @@ fun CameraScreen(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Camera Switch Button
                 FloatingActionButton(
                     onClick = {
                         isFrontCamera = !isFrontCamera
@@ -162,10 +280,8 @@ fun CameraScreen(
                     )
                 }
             }
-        }
 
-        // Bottom Controls
-        if (cameraPermissionState.status.isGranted) {
+            // Bottom Controls
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -223,16 +339,7 @@ fun CameraScreen(
                                     context = context,
                                     imageCapture = imageCapture,
                                     onCaptured = { bitmap ->
-                                        val matrix = Matrix()
-                                        matrix.postRotate(90f)
-                                        val rotatedBitmap = Bitmap.createBitmap(
-                                            bitmap,
-                                            0, 0,
-                                            bitmap.width, bitmap.height,
-                                            matrix,
-                                            true
-                                        )
-                                        onSelfieCaptured(rotatedBitmap)
+                                        handleCapture(bitmap)
                                     }
                                 )
                             },
@@ -324,16 +431,4 @@ private fun takePhoto(
             }
         }
     )
-}
-
-private fun ImageProxy.toBitmap(): Bitmap? {
-    try {
-        val buffer = planes[0].buffer
-        val bytes = ByteArray(buffer.remaining())
-        buffer.get(bytes)
-        return android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        return null
-    }
 }
