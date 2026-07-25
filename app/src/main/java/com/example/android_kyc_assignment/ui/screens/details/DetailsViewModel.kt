@@ -48,12 +48,6 @@ class DetailsViewModel(
         }
     }
 
-    fun refreshCustomer() {
-        if (currentCustomerId != -1) {
-            loadCustomer(currentCustomerId)
-        }
-    }
-
     private suspend fun fetchIFSCDetails(customer: Customer) {
         try {
             ifscRepository.getIFSCDetails(customer.ifscCode).collect { ifscResponse ->
@@ -124,7 +118,7 @@ class DetailsViewModel(
                     ifscCode = customerDetail.ifscCode,
                     isKycVerified = true,
                     selfiePath = file.absolutePath,
-                    accountType = customerDetail.accountType  // <-- ADD THIS LINE
+                    accountType = customerDetail.accountType
                 )
 
                 // Update in repository (database + cache)

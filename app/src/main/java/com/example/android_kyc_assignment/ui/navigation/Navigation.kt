@@ -1,6 +1,5 @@
 package com.example.android_kyc_assignment.ui.navigation
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext

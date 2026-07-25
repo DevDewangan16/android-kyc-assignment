@@ -126,56 +126,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return customers
     }
 
-    fun getCustomersByKycStatus(isVerified: Boolean): List<Customer> {
-        val customers = mutableListOf<Customer>()
-        val db = readableDatabase
-        val selection = "$COLUMN_IS_KYC_VERIFIED = ?"
-        val selectionArgs = arrayOf(if (isVerified) "1" else "0")
-        val cursor = db.query(TABLE_CUSTOMERS, null, selection, selectionArgs, null, null, null)
-
-        cursor.use {
-            val idIndex = it.getColumnIndex(COLUMN_ID)
-            val nameIndex = it.getColumnIndex(COLUMN_NAME)
-            val avatarIndex = it.getColumnIndex(COLUMN_AVATAR)
-            val accountIndex = it.getColumnIndex(COLUMN_ACCOUNT_NUMBER)
-            val balanceIndex = it.getColumnIndex(COLUMN_BALANCE)
-            val currencyIndex = it.getColumnIndex(COLUMN_CURRENCY)
-            val ifscIndex = it.getColumnIndex(COLUMN_IFSC_CODE)
-            val kycIndex = it.getColumnIndex(COLUMN_IS_KYC_VERIFIED)
-            val selfieIndex = it.getColumnIndex(COLUMN_SELFIE_PATH)
-            val accountTypeIndex = it.getColumnIndex(COLUMN_ACCOUNT_TYPE)
-
-            while (it.moveToNext()) {
-                val accountTypeStr = if (accountTypeIndex >= 0) {
-                    it.getString(accountTypeIndex) ?: "UNKNOWN"
-                } else {
-                    "UNKNOWN"
-                }
-                val accountType = try {
-                    AccountType.valueOf(accountTypeStr)
-                } catch (e: IllegalArgumentException) {
-                    AccountType.UNKNOWN
-                }
-
-                val customer = Customer(
-                    id = it.getInt(idIndex),
-                    name = it.getString(nameIndex),
-                    avatar = it.getString(avatarIndex),
-                    accountNumber = it.getString(accountIndex),
-                    balance = it.getDouble(balanceIndex),
-                    currency = it.getString(currencyIndex),
-                    ifscCode = it.getString(ifscIndex),
-                    isKycVerified = it.getInt(kycIndex) == 1,
-                    selfiePath = it.getString(selfieIndex),
-                    accountType = accountType
-                )
-                customers.add(customer)
-            }
-        }
-        db.close()
-        return customers
-    }
-
     fun searchCustomers(query: String): List<Customer> {
         val customers = mutableListOf<Customer>()
         val db = readableDatabase
@@ -295,11 +245,5 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
         db.close()
         return customer
-    }
-
-    fun deleteAll() {
-        val db = writableDatabase
-        db.delete(TABLE_CUSTOMERS, null, null)
-        db.close()
     }
 }

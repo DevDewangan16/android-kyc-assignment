@@ -1,6 +1,4 @@
 package com.example.android_kyc_assignment.ui.screens.accounts
-
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid

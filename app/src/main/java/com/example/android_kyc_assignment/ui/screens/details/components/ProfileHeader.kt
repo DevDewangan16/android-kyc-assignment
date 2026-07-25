@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.android_kyc_assignment.ui.theme.Black
-import com.example.android_kyc_assignment.ui.theme.White
 import java.io.File
 
 @Composable

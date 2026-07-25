@@ -1,7 +1,6 @@
 package com.example.android_kyc_assignment.ui.screens.details
 
 import android.Manifest
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,14 +15,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.android_kyc_assignment.domain.model.AccountType
 import com.example.android_kyc_assignment.ui.screens.details.components.*
 import com.example.android_kyc_assignment.ui.theme.Black
 import com.example.android_kyc_assignment.ui.theme.OffWhite
 import com.example.android_kyc_assignment.ui.theme.White
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.shouldShowRationale
 
@@ -168,7 +165,7 @@ fun DetailsScreen(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "🏦 ${customer.accountType.name} Account",
+                                text = "${customer.accountType.name} Account",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Black

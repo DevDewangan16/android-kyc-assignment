@@ -1,6 +1,4 @@
 package com.example.android_kyc_assignment.ui.screens.accounts.components
-
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -14,10 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.android_kyc_assignment.ui.theme.Black
-import com.example.android_kyc_assignment.ui.theme.LightGray
 import com.example.android_kyc_assignment.ui.theme.White
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
     query: String,

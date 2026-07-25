@@ -65,15 +65,7 @@ class UserRepository(private val context: Context) {
         }
     }
 
-    suspend fun searchCustomers(query: String): List<Customer> {
-        return if (query.isBlank()) {
-            databaseHelper.getAllCustomers()
-        } else {
-            databaseHelper.searchCustomers(query)
-        }
-    }
-
-    suspend fun getCustomerById(id: Int): Customer? {
+    fun getCustomerById(id: Int): Customer? {
         // Check database first (has latest KYC status)
         val dbCustomer = databaseHelper.getCustomerById(id)
         if (dbCustomer != null) return dbCustomer
@@ -85,7 +77,7 @@ class UserRepository(private val context: Context) {
         return null
     }
 
-    suspend fun updateCustomer(customer: Customer) {
+    fun updateCustomer(customer: Customer) {
         // Update in database
         databaseHelper.updateCustomer(customer)
         // Update in cache
